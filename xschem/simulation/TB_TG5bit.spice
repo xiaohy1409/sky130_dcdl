@@ -1,0 +1,142 @@
+** sch_path: /home/xiaohi/Projects/sky130_dcdl/xschem/schematic/SCI_DCDL/TG_SCI/TB_TG5bit.sch
+**.subckt TB_TG5bit
+V2 IN 0 PULSE(0 1.8 1n 50p 50p 2n 4n)
+V3 net1 0 1.8
+V1 net2 0 1.8
+V4 net3 0 1.8
+V5 net4 0 1.8
+V6 net5 0 1.8
+V7 net6 0 1.8
+x1 net6 IN OUT 0 net3 net5 net4 net2 net1 SCI_TG_5bit
+**** begin user architecture code
+
+
+.option rshunt=1e12
+.tran 1p 25n 0 1p
+
+.control
+
+* Save signals for measurement
+save v(IN) v(OUT)
+
+* Output file
+echo code t_rise_ps t_fall_ps t_pd_ps > /home/xiaohi/Projects/sky130_dcdl/results/csv/sci_tg_5bit.dat
+
+* Sweep 32 control codes
+foreach b4 0 1
+ foreach b3 0 1
+  foreach b2 0 1
+   foreach b1 0 1
+    foreach b0 0 1
+
+     * Calculate control voltages
+     let v0 = 1.8 * $b0
+     let v1 = 1.8 * $b1
+     let v2 = 1.8 * $b2
+     let v3 = 1.8 * $b3
+     let v4 = 1.8 * $b4
+
+     * Update voltage sources
+     alter V3 dc = $&v0
+     alter V1 dc = $&v1
+     alter V4 dc = $&v2
+     alter V5 dc = $&v3
+     alter V6 dc = $&v4
+
+     * Run transient
+     run
+
+     * Propagation delay: two inverters
+     meas tran t_rise TRIG v(IN) VAL=0.9 RISE=2 TARG v(OUT) VAL=0.9 RISE=2
+
+     meas tran t_fall TRIG v(IN) VAL=0.9 FALL=2 TARG v(OUT) VAL=0.9 FALL=2
+
+     * Calculate delay in ps
+     let code = 16*$b4 + 8*$b3 + 4*$b2 + 2*$b1 + $b0
+
+     let rise_ps = t_rise * 1e12
+     let fall_ps = t_fall * 1e12
+     let pd_ps = (rise_ps + fall_ps)/2
+
+     * Write results
+     echo $&code $&rise_ps $&fall_ps $&pd_ps >> /home/xiaohi/Projects/sky130_dcdl/results/csv/sci_tg_5bit.dat
+
+    end
+   end
+  end
+ end
+end
+
+echo SCI TG 5-bit sweep completed
+.endc
+
+
+
+** opencircuitdesign pdks install
+.lib /home/xiaohi/.ciel/ciel/sky130/versions/1689ac3f2dc763876eaf967227c7dfe831b031ae/sky130A/libs.tech/combined/sky130.lib.spice tt
+
+**** end user architecture code
+**.ends
+
+* expanding   symbol:  SCI_TG_5bit.sym # of pins=9
+** sym_path: /home/xiaohi/Projects/sky130_dcdl/xschem/schematic/SCI_DCDL/TG_SCI/SCI_TG_5bit.sym
+** sch_path: /home/xiaohi/Projects/sky130_dcdl/xschem/schematic/SCI_DCDL/TG_SCI/SCI_TG_5bit.sch
+.subckt SCI_TG_5bit VDD IN OUT VSS A2 A4 A3 A1 A0
+*.ipin IN
+*.opin OUT
+*.iopin VDD
+*.iopin VSS
+*.ipin A0
+*.ipin A1
+*.ipin A2
+*.ipin A3
+*.ipin A4
+XM1 net1 IN VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0
++ mult=1
+XM3 OUT net1 VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0
++ mult=1
+XM5 net1 IN VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=2.5 nf=1 ad=0.725 as=0.725 pd=5.58 ps=5.58 nrd=0.116 nrs=0.116 sa=0 sb=0 sd=0
++ mult=1
+XM2 OUT net1 VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=2.5 nf=1 ad=0.725 as=0.725 pd=5.58 ps=5.58 nrd=0.116 nrs=0.116 sa=0 sb=0
++ sd=0 mult=1
+XM4 net1 A0 net2 VSS sky130_fd_pr__nfet_01v8 L=0.15 W=0.5 nf=1 ad=0.145 as=0.145 pd=1.58 ps=1.58 nrd=0.58 nrs=0.58 sa=0 sb=0 sd=0
++ mult=1
+XM10 net1 net3 net2 VDD sky130_fd_pr__pfet_01v8 L=0.15 W=0.5 nf=1 ad=0.145 as=0.145 pd=1.58 ps=1.58 nrd=0.58 nrs=0.58 sa=0 sb=0
++ sd=0 mult=1
+x1 VDD A0 net3 VSS inverter
+XM6 net1 A1 net4 VSS sky130_fd_pr__nfet_01v8 L=0.15 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0
++ mult=1
+XM7 net1 net5 net4 VDD sky130_fd_pr__pfet_01v8 L=0.15 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0
++ mult=1
+x2 VDD A1 net5 VSS inverter
+XM8 net1 A2 net6 VSS sky130_fd_pr__nfet_01v8 L=0.15 W=2 nf=1 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145 sa=0 sb=0 sd=0
++ mult=1
+XM9 net1 net7 net6 VDD sky130_fd_pr__pfet_01v8 L=0.15 W=2 nf=1 ad=0.58 as=0.58 pd=4.58 ps=4.58 nrd=0.145 nrs=0.145 sa=0 sb=0 sd=0
++ mult=1
+x3 VDD A2 net7 VSS inverter
+XM11 net1 A3 net8 VSS sky130_fd_pr__nfet_01v8 L=0.15 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0 sb=0 sd=0
++ mult=1
+XM12 net1 net9 net8 VDD sky130_fd_pr__pfet_01v8 L=0.15 W=4 nf=1 ad=1.16 as=1.16 pd=8.58 ps=8.58 nrd=0.0725 nrs=0.0725 sa=0 sb=0
++ sd=0 mult=1
+x4 VDD A3 net9 VSS inverter
+XM13 net1 A4 net10 VSS sky130_fd_pr__nfet_01v8 L=0.15 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625 sa=0 sb=0
++ sd=0 mult=1
+XM14 net1 net11 net10 VDD sky130_fd_pr__pfet_01v8 L=0.15 W=8 nf=1 ad=2.32 as=2.32 pd=16.58 ps=16.58 nrd=0.03625 nrs=0.03625 sa=0
++ sb=0 sd=0 mult=1
+x5 VDD A4 net11 VSS inverter
+.ends
+
+
+* expanding   symbol:  inverter.sym # of pins=4
+** sym_path: /home/xiaohi/Projects/sky130_dcdl/xschem/schematic/SCI_DCDL/TG_SCI/inverter.sym
+** sch_path: /home/xiaohi/Projects/sky130_dcdl/xschem/schematic/SCI_DCDL/TG_SCI/inverter.sch
+.subckt inverter VDD IN OUT VSS
+*.ipin IN
+*.opin OUT
+*.iopin VDD
+*.iopin VSS
+XM1 OUT IN VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0 mult=1
+XM2 OUT IN VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0 mult=1
+.ends
+
+.end

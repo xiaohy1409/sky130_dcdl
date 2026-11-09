@@ -1,0 +1,22 @@
+# Ngspice generated files
+*.raw
+*.log
+*.vcd
+*.out
+
+# Xschem temporary files
+*~
+*.swp
+*.swo
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Simulation logs
+/results/logs/
+
+# Generated Xschem simulation files
+#/xschem/simulation/
+# Temporary unnamed netlists
+untitled*.spice

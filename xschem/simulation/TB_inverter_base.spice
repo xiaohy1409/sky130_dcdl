@@ -1,0 +1,49 @@
+** sch_path: /home/xiaohi/Projects/sky130_dcdl/xschem/schematic/SCI_DCDL/TG_SCI/TB_inverter_base.sch
+**.subckt TB_inverter_base
+x1 net1 IN OUT 0 inverter_base
+V2 IN 0 PULSE(0 1.8 1n 50p 50p 2n 4n)
+V7 net1 0 1.8
+**** begin user architecture code
+
+.tran 1p 25n 0 1p
+
+.control
+save v(IN) v(OUT)
+run
+
+meas tran t_rise TRIG v(IN) VAL=0.9 RISE=2 TARG v(OUT) VAL=0.9 RISE=2
+meas tran t_fall TRIG v(IN) VAL=0.9 FALL=2 TARG v(OUT) VAL=0.9 FALL=2
+
+let t_pd = (t_rise + t_fall)/2
+let t_pd_ps = t_pd*1e12
+
+print t_pd_ps
+.endc
+
+
+
+** opencircuitdesign pdks install
+.lib /home/xiaohi/.ciel/ciel/sky130/versions/1689ac3f2dc763876eaf967227c7dfe831b031ae/sky130A/libs.tech/combined/sky130.lib.spice tt
+
+**** end user architecture code
+**.ends
+
+* expanding   symbol:  inverter_base.sym # of pins=4
+** sym_path: /home/xiaohi/Projects/sky130_dcdl/xschem/schematic/SCI_DCDL/TG_SCI/inverter_base.sym
+** sch_path: /home/xiaohi/Projects/sky130_dcdl/xschem/schematic/SCI_DCDL/TG_SCI/inverter_base.sch
+.subckt inverter_base VDD IN OUT VSS
+*.ipin IN
+*.opin OUT
+*.iopin VDD
+*.iopin VSS
+XM1 net1 IN VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0
++ mult=1
+XM3 OUT net1 VSS VSS sky130_fd_pr__nfet_01v8 L=0.15 W=1 nf=1 ad=0.29 as=0.29 pd=2.58 ps=2.58 nrd=0.29 nrs=0.29 sa=0 sb=0 sd=0
++ mult=1
+XM5 net1 IN VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=2.5 nf=1 ad=0.725 as=0.725 pd=5.58 ps=5.58 nrd=0.116 nrs=0.116 sa=0 sb=0 sd=0
++ mult=1
+XM2 OUT net1 VDD VDD sky130_fd_pr__pfet_01v8 L=0.15 W=2.5 nf=1 ad=0.725 as=0.725 pd=5.58 ps=5.58 nrd=0.116 nrs=0.116 sa=0 sb=0
++ sd=0 mult=1
+.ends
+
+.end
